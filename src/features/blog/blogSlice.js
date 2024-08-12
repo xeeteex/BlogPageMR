@@ -9,6 +9,16 @@ export const blogSlice = createSlice({
     addBlogs: (state, action) => {
       state.blogs.push(action.payload);
     },
+
+    removeBlog: (state, action) => {
+      state.blogs.splice(action.payload, 1);
+    },
+
+    updateBlog: (state, action) => {
+      state.blogs = state.blogs.map((blog) => {
+        return blog.id === action.payload.id ? action.payload : blog;
+      });
+    },
   },
 });
 
