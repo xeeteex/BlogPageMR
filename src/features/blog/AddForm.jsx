@@ -2,13 +2,20 @@ import {
   Button,
   Checkbox,
   Input,
+  Option,
   Radio,
+  Rating,
+  Select,
   Textarea,
   Typography,
 } from "@material-tailwind/react";
+import { nanoid } from "@reduxjs/toolkit";
 import { useFormik } from "formik";
 import React from "react";
+import { useDispatch } from "react-redux";
 import * as Yup from "yup";
+import { addBlogs } from "./blogSlice";
+import { useNavigate } from "react-router";
 
 const radioData = [
   { color: "red", label: "News", value: "news" },
@@ -22,14 +29,17 @@ const checkData = [
 ];
 
 const AddForm = () => {
+  const dispatch = useDispatch();
+  const nav = useNavigate();
+
   const blogSchema = Yup.object({
-    title: Yup.string()
-      .min(2)
-      .max(8, "title should be less than 8 char")
-      .required("title is required"),
+    title: Yup.string().max(100).required(),
+    // title: Yup.string().max(100).matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/, 'valid').required('title is required'),
     detail: Yup.string().required(),
     blogType: Yup.string().required(),
     colors: Yup.array().min(1).required(),
+    country: Yup.string().required(),
+    rating: Yup.number().required(),
   });
 
   const formik = useFormik({
@@ -38,9 +48,12 @@ const AddForm = () => {
       detail: "",
       blogType: "",
       colors: [],
+      country: "",
+      rating: 0,
     },
     onSubmit: (val) => {
-      console.log(val);
+      dispatch(addBlogs({ ...val, id: nanoid() }));
+      nav(-1);
     },
     validationSchema: blogSchema,
   });
@@ -55,7 +68,6 @@ const AddForm = () => {
             name="title"
             label="Blog Title"
           />
-
           {formik.errors.title && formik.touched.title && (
             <p className="text-pink-400">{formik.errors.title}</p>
           )}
@@ -69,9 +81,10 @@ const AddForm = () => {
               return (
                 <Radio
                   key={i}
-                  name="blogType"
+                  onChange={formik.handleChange}
                   value={rad.value}
                   color={rad.color}
+                  name="blogType"
                   label={rad.label}
                 />
               );
@@ -84,17 +97,18 @@ const AddForm = () => {
         </div>
 
         <div className="">
-          <Typography>Select Color</Typography>
+          <Typography>Select Colors</Typography>
 
           <div className="flex gap-7">
-            {checkData.map((che, i) => {
+            {checkData.map((check, i) => {
               return (
                 <Checkbox
                   key={i}
+                  onChange={formik.handleChange}
+                  value={check.value}
+                  color={check.color}
                   name="colors"
-                  value={che.value}
-                  color={che.color}
-                  label={che.label}
+                  label={check.label}
                 />
               );
             })}
@@ -103,6 +117,28 @@ const AddForm = () => {
           {formik.errors.colors && formik.touched.colors && (
             <p className="text-pink-400">{formik.errors.colors}</p>
           )}
+        </div>
+
+        <div className="w-72">
+          <Select
+            onChange={(e) => {
+              formik.setFieldValue("country", e);
+            }}
+            name="country"
+            label="Select Country"
+          >
+            <Option value="nepal">Nepal</Option>
+            <Option value="india">India</Option>
+            <Option value="china">China</Option>
+          </Select>
+          {formik.errors.country && formik.touched.country && (
+            <p className="text-pink-400">{formik.errors.country}</p>
+          )}
+        </div>
+
+        <div className="">
+          <Typography className="tracking-wider mb-1">Rating</Typography>
+          <Rating onChange={(e) => formik.setFieldValue("rating", e)} />
         </div>
 
         <div>
