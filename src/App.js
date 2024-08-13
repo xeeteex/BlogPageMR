@@ -1,6 +1,7 @@
 import React from "react";
 import RootLayout from "./ui/RootLayout";
 import BlogPage from "./features/blog/BlogPage";
+import AddForm from "./features/blog/AddForm";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 const App = () => {
   const router = createBrowserRouter([
@@ -11,6 +12,10 @@ const App = () => {
         {
           index: true,
           element: <BlogPage />,
+        },
+        {
+          path: "add-blog",
+          element: <AddForm />,
         },
       ],
     },
