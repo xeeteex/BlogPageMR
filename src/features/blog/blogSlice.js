@@ -20,6 +20,8 @@ export const blogSlice = createSlice({
       state.blogs = state.blogs.map((blog) => {
         return blog.id === action.payload.id ? action.payload : blog;
       });
+
+      setBlogToLocal(state.blogs);
     },
   },
 });
