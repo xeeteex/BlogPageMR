@@ -14,6 +14,8 @@ export const blogSlice = createSlice({
 
     removeBlog: (state, action) => {
       state.blogs.splice(action.payload, 1);
+
+      setBlogToLocal(state.blogs);
     },
 
     updateBlog: (state, action) => {
