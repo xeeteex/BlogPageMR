@@ -12,23 +12,18 @@ import {
 import { nanoid } from "@reduxjs/toolkit";
 import { useFormik } from "formik";
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { addBlogs } from "./blogSlice";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { checkData, radioData } from "./AddForm";
 
-export const radioData = [
-  { color: "red", label: "News", value: "news" },
-  { color: "green", label: "Travel", value: "travel" },
-];
+const EditForm = () => {
+  const { id } = useParams();
+  const { blogs } = useSelector((state) => state.blogSlice);
 
-export const checkData = [
-  { color: "red", label: "Red", value: "red" },
-  { color: "green", label: "Green", value: "green" },
-  { color: "blue", label: "Blue", value: "blue" },
-];
+  const blog = blogs.find((blog) => blog.id === id);
 
-const AddForm = () => {
   const dispatch = useDispatch();
   const nav = useNavigate();
 
@@ -44,12 +39,12 @@ const AddForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      title: "",
-      detail: "",
-      blogType: "",
-      colors: [],
-      country: "",
-      rating: 0,
+      title: blog.title,
+      detail: blog.detail,
+      blogType: blog.blogType,
+      colors: blog.colors,
+      country: blog.country,
+      rating: blog.rating,
     },
     onSubmit: (val) => {
       dispatch(addBlogs({ ...val, id: nanoid() }));
@@ -81,6 +76,7 @@ const AddForm = () => {
               return (
                 <Radio
                   key={i}
+                  checked={formik.values.blogType === rad.value}
                   onChange={formik.handleChange}
                   value={rad.value}
                   color={rad.color}
@@ -104,6 +100,7 @@ const AddForm = () => {
               return (
                 <Checkbox
                   key={i}
+                  checked={formik.values.colors.includes(check.value)}
                   onChange={formik.handleChange}
                   value={check.value}
                   color={check.color}
@@ -138,7 +135,10 @@ const AddForm = () => {
 
         <div className="">
           <Typography className="tracking-wider mb-1">Rating</Typography>
-          <Rating onChange={(e) => formik.setFieldValue("rating", e)} />
+          <Rating
+            value={formik.values.rating}
+            onChange={(e) => formik.setFieldValue("rating", e)}
+          />
         </div>
 
         <div>
@@ -159,4 +159,4 @@ const AddForm = () => {
   );
 };
 
-export default AddForm;
+export default EditForm;

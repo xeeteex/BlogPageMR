@@ -8,17 +8,18 @@ import {
   Rating,
   IconButton,
 } from "@material-tailwind/react";
+import { useNavigate } from "react-router";
 
 const BlogPage = () => {
-  const { blogs } = useSelector((state) => state.blogSlice);
+  const nav = useNavigate();
 
-  console.log(blogs);
+  const { blogs } = useSelector((state) => state.blogSlice);
 
   return (
     <div className="p-4 grid grid-cols-3 gap-7">
       {blogs.map((blog) => {
         return (
-          <Card className="mt-6 shadow-2xl " key={blog.id}>
+          <Card className="mt-6 " key={blog.id}>
             <CardBody>
               <Typography variant="h5" color="blue-gray" className="mb-2">
                 {blog.title}
@@ -28,7 +29,7 @@ const BlogPage = () => {
               <Typography>{blog.blogType}</Typography>
             </CardBody>
             <CardFooter className="pt-0 flex justify-end gap-4">
-              <IconButton>
+              <IconButton onClick={() => nav(`/edit-blog/${blog.id}`)}>
                 <i className="fas fa-edit" />
               </IconButton>
               <IconButton>
@@ -41,4 +42,5 @@ const BlogPage = () => {
     </div>
   );
 };
+
 export default BlogPage;
