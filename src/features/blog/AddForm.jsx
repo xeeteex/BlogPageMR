@@ -28,6 +28,8 @@ export const checkData = [
   { color: "blue", label: "Blue", value: "blue" },
 ];
 
+const fileTypes = ["image/jpg", "image/jpeg", "image/png"];
+
 const AddForm = () => {
   const dispatch = useDispatch();
   const nav = useNavigate();
@@ -40,6 +42,9 @@ const AddForm = () => {
     colors: Yup.array().min(1).required(),
     country: Yup.string().required(),
     rating: Yup.number().required(),
+    image: Yup.mixed().test("fileType", "invalid image", (e) => {
+      return e && fileTypes.includes(e.type);
+    }),
   });
 
   const formik = useFormik({
@@ -50,8 +55,11 @@ const AddForm = () => {
       colors: [],
       country: "",
       rating: 0,
+      image: null,
+      imageShow: "",
     },
     onSubmit: (val) => {
+      delete val.image;
       dispatch(addBlogs({ ...val, id: nanoid() }));
       nav(-1);
     },
@@ -139,6 +147,27 @@ const AddForm = () => {
         <div className="">
           <Typography className="tracking-wider mb-1">Rating</Typography>
           <Rating onChange={(e) => formik.setFieldValue("rating", e)} />
+        </div>
+
+        <div>
+          <Input
+            onChange={(e) => {
+              const file = e.target.files[0];
+              formik.setFieldValue("image", file);
+              const imageUrl = URL.createObjectURL(file);
+              formik.setFieldValue("imageShow", imageUrl);
+            }}
+            name="image"
+            type="file"
+            label="Select Image"
+          />
+          {formik.values.imageShow && (
+            <img src={formik.values.imageShow} alt="" className="mt-3" />
+          )}
+
+          {formik.errors.image && formik.touched.image && (
+            <p className="text-pink-400">{formik.errors.image}</p>
+          )}
         </div>
 
         <div>
