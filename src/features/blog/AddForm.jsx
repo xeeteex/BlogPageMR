@@ -154,8 +154,13 @@ const AddForm = () => {
             onChange={(e) => {
               const file = e.target.files[0];
               formik.setFieldValue("image", file);
-              const imageUrl = URL.createObjectURL(file);
-              formik.setFieldValue("imageShow", imageUrl);
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.addEventListener("load", (e) => {
+                formik.setFieldValue("imageShow", e.target.result); //base64 terms ma aucha esto garyo bhane
+              });
+              // const imageUrl = URL.createObjectURL(file);
+              // formik.setFieldValue("imageShow", imageUrl);
             }}
             name="image"
             type="file"
