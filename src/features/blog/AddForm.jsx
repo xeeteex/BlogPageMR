@@ -166,7 +166,7 @@ const AddForm = () => {
             type="file"
             label="Select Image"
           />
-          {formik.values.imageShow && (
+          {formik.values.imageShow && !formik.errors.image && (
             <img src={formik.values.imageShow} alt="" className="mt-3" />
           )}
 

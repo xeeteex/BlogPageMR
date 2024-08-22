@@ -26,6 +26,8 @@ const EditForm = () => {
   const dispatch = useDispatch();
   const nav = useNavigate();
 
+  const fileTypes = ["image/jpg", "image/jpeg", "image/png"];
+
   const blogSchema = Yup.object({
     title: Yup.string().max(100).required(),
     // title: Yup.string().max(100).matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/, 'valid').required('title is required'),
@@ -34,6 +36,9 @@ const EditForm = () => {
     colors: Yup.array().min(1).required(),
     country: Yup.string().required(),
     rating: Yup.number().required(),
+    image: Yup.mixed().test("fileType", "invalid image", (e) => {
+      return e && fileTypes.includes(e.type);
+    }),
   });
 
   const formik = useFormik({
@@ -44,10 +49,23 @@ const EditForm = () => {
       colors: blog.colors,
       country: blog.country,
       rating: blog.rating,
+      image: null,
+      imageShow: blog.imageShow,
     },
     onSubmit: (val) => {
-      dispatch(updateBlog({ ...val, id: id }));
-      nav(-1);
+      if (val.image) {
+        if (fileTypes.includes(val.image?.type)) {
+          delete val.image;
+          dispatch(updateBlog({ ...val, id: id }));
+          nav(-1);
+        } else {
+          console.log("image not selected");
+        }
+      } else {
+        delete val.image;
+        dispatch(updateBlog({ ...val, id: id }));
+        nav(-1);
+      }
     },
     validationSchema: blogSchema,
   });
@@ -121,6 +139,7 @@ const EditForm = () => {
               formik.setFieldValue("country", e);
             }}
             name="country"
+            value={formik.values.country}
             label="Select Country"
           >
             <Option value="nepal">Nepal</Option>
@@ -138,6 +157,32 @@ const EditForm = () => {
             value={formik.values.rating}
             onChange={(e) => formik.setFieldValue("rating", e)}
           />
+        </div>
+
+        <div>
+          <Input
+            onChange={(e) => {
+              const file = e.target.files[0];
+              formik.setFieldValue("image", file);
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.addEventListener("load", (e) => {
+                formik.setFieldValue("imageShow", e.target.result); //base64 terms ma aucha esto garyo bhane
+              });
+              // const imageUrl = URL.createObjectURL(file);
+              // formik.setFieldValue("imageShow", imageUrl);
+            }}
+            name="image"
+            type="file"
+            label="Select Image"
+          />
+          {formik.values.imageShow && !formik.errors.image && (
+            <img src={formik.values.imageShow} alt="" className="mt-3" />
+          )}
+
+          {formik.errors.image && formik.touched.image && (
+            <p className="text-pink-400">{formik.errors.image}</p>
+          )}
         </div>
 
         <div>
